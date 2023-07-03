@@ -4,7 +4,7 @@ from django.db import models
 
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    body = models.TextField(max_length=2048)
+    body = models.TextField(max_length=5000)
     destroyLiveAfterSeconds = models.IntegerField(blank=True, null=True)
     password = models.CharField(max_length=256, blank=True)
     destroyAfterDays = models.IntegerField()
