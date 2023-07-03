@@ -8,7 +8,7 @@ from .serializers import MessageSerializer
 from core_app.models import Message
 from core_app.services.encryption_service import EncryptionService
 from injector import inject
-
+from urllib.parse import quote_plus, unquote_to_bytes
 
 class MessageViews(APIView):
 
@@ -24,10 +24,16 @@ class MessageViews(APIView):
             password = serializer.validated_data['password']
             if password != "":
                 hashed_password = self.encryption_service.hash_password(password)
-                encrypted_string = self.encryption_service.to_salt_iv_plus_encrypted(password, serializer.validated_data['body'])
+
+                salt = self.encryption_service.generate_salt()
+                aes_key = self.encryption_service.derive_aes_key_from_password(password, salt)
+
+                iv = self.encryption_service.generate_iv()
+                ciphertext = self.encryption_service.encrypt_string(aes_key, iv, serializer.validated_data['body'])
+                encrypted_body_with_additions = self.encryption_service.join_salt_iv_ciphertext(salt, iv, ciphertext)
                 # Update values
                 serializer.validated_data['password'] = hashed_password
-                serializer.validated_data['body'] = encrypted_string
+                serializer.validated_data['body'] = encrypted_body_with_additions
             # Save
             serializer.save()
             return Response({"status": "success", "data": serializer.data['id']}, status=status.HTTP_200_OK)
@@ -56,8 +62,10 @@ class MessageViews(APIView):
             )
 
         
-        password_base64 = request.query_params.get('pw')
-        password_str = self.encryption_service.decode_base64_str(password_base64)
+        encoded_password_base64 = request.query_params.get('pw')
+        decoded_password_base64 = encoded_password_base64.replace(' ', '+')
+        # Manually decode the parameter using unquote_plus
+        password_str = self.encryption_service.decode_base64_str(decoded_password_base64)
         plaint_text = self.encryption_service.decrypt(message_instance.body, password_str)
         message_instance.body = plaint_text
         serializer = MessageSerializer(message_instance)

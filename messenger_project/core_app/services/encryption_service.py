@@ -71,34 +71,18 @@ class EncryptionService:
         iv = get_random_string(length)
         return iv
     
-    def to_salt_iv_plus_encrypted(self, password, cleartext):
-        salt = self.generate_salt()
-        aes_key = self.derive_aes_key_from_password(password, salt)
 
-        iv = self.generate_iv()
-        ciphertext = self.encrypt_string(aes_key, iv, cleartext)
-        #iv_hex = iv.encode(self.STR_ENCODING).hex()
-        #ciphertext_hex = ciphertext.hex()
-        #salt_hex = salt.encode(self.STR_ENCODING).hex()
+    def join_salt_iv_ciphertext(self, salt, iv, ciphertext):
+        combined = salt + iv + ciphertext.hex()
+        return combined
 
-        # Concatenate IV and ciphertext
-        encrypted_string = salt + iv + ciphertext.hex()
-        return encrypted_string
-    
 
-    def destruct_salt_iv_encrypted(self, combined_str):
-        # Extract the IV from the encrypted string (first n characters)
+    def destructure_salt_iv_encrypted(self, combined_str):
         salt = combined_str[:self.SALT_SIZE]
-
-        # Convert the IV from hexadecimal back to bytes to normal string
-        #salt_str = bytes.fromhex(salt_hex).decode()
 
         iv_plus_ciphertext = combined_str[self.SALT_SIZE:]
 
         iv = iv_plus_ciphertext[:self.IV_SIZE]
-
-        # Convert the IV from hexadecimal back to bytes to normal string
-        #iv_str = bytes.fromhex(iv_hex).decode()
 
         ciphertext_hex = iv_plus_ciphertext[self.IV_SIZE:]
         ciphertext = bytes.fromhex(ciphertext_hex)
@@ -113,7 +97,7 @@ class EncryptionService:
         return decoded_string
 
     def decrypt(self, combined_encrypted_str, password):
-        salt, iv, ciphertext = self.destruct_salt_iv_encrypted(combined_encrypted_str)
+        salt, iv, ciphertext = self.destructure_salt_iv_encrypted(combined_encrypted_str)
         aes_key = self.derive_aes_key_from_password(password, salt)
         plain_text = self.decrypt_string(aes_key, iv, ciphertext)
         return plain_text
