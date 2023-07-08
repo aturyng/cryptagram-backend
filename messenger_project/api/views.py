@@ -40,7 +40,7 @@ class MessageViews(APIView):
         else:
             return Response({"status": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_object(self, message_id):
+    def __get_object(self, message_id):
         '''
         Helper method to get the object with given message_id
         '''
@@ -53,7 +53,7 @@ class MessageViews(APIView):
         '''
         Retrieves the message with given id
         '''
-        message_instance = self.get_object(message_id)
+        message_instance = self.__get_object(message_id)
         if not message_instance:
             
             return Response(
@@ -61,32 +61,18 @@ class MessageViews(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        
-        encoded_password_base64 = request.query_params.get('pw')
-        decoded_password_base64 = encoded_password_base64.replace(' ', '+')
-        # Manually decode the parameter using unquote_plus
-        password_str = self.encryption_service.decode_base64_str(decoded_password_base64)
-        plaint_text = self.encryption_service.decrypt(message_instance.body, password_str)
-        message_instance.body = plaint_text
-        serializer = MessageSerializer(message_instance)
-        message_instance.delete()
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-    # 5. Delete
-    def delete(self, request, message_id, *args, **kwargs):
-        '''
-        Deletes the todo item with given todo_id if exists
-        '''
-        message_instance = self.get_object(message_id)
-        if not message_instance:
+        try:
+            encoded_password_base64 = request.query_params.get('pw')
+           
+            decoded_password_base64 = encoded_password_base64.replace(' ', '+')
+            password_str = self.encryption_service.decode_base64_str(decoded_password_base64)
+            plaint_text = self.encryption_service.decrypt(message_instance.body, password_str)
+            message_instance.body = plaint_text
+            serializer = MessageSerializer(message_instance)
+            message_instance.delete()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
             return Response(
-                {"res": "Object with message id does not exists"}, 
+                {"res": "An error occured while processing request"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        message_instance.delete()
-        return Response(
-            {"res": "Object deleted!"},
-            status=status.HTTP_200_OK
-        )
-    

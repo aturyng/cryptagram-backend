@@ -15,6 +15,7 @@ class EncryptionService:
     SALT_SIZE = 16
     IV_SIZE = 16
     AES_VER = 256
+    HASH_ALG = 'sha256'
 
     def encrypt_string(self, key, iv, plaintext):
         # Create an AES cipher with the provided key and IV
@@ -51,7 +52,7 @@ class EncryptionService:
         decrypted_plaintext = unpadder.update(decrypted_padded) + unpadder.finalize()
 
         # Return the decrypted plaintext
-        return decrypted_plaintext.decode('utf-8')
+        return decrypted_plaintext.decode(self.STR_ENCODING)
 
     def hash_password(self, password):
         hashed_password = make_password(password)
@@ -59,7 +60,7 @@ class EncryptionService:
 
     def derive_aes_key_from_password(self, password, salt):
         # Derive the AES key using PBKDF2 with HMAC-SHA256
-        key = pbkdf2_hmac(hash_name='sha256', password=password.encode(self.STR_ENCODING), salt=salt.encode(self.STR_ENCODING), iterations=100000, dklen=32)
+        key = pbkdf2_hmac(hash_name=self.HASH_ALG, password=password.encode(self.STR_ENCODING), salt=salt.encode(self.STR_ENCODING), iterations=100000, dklen=32)
         # Return the derived key as bytes
         return key
     
@@ -93,8 +94,16 @@ class EncryptionService:
         decoded_bytes = base64.b64decode(base64_str)
 
         # Convert the decoded bytes back to a string
-        decoded_string = decoded_bytes.decode('utf-8')
+        decoded_string = decoded_bytes.decode(self.STR_ENCODING)
         return decoded_string
+
+    def encode_str_to_base64(self, plain_str):
+        # Decode the bytes using base64 decoding
+        encoded_bytes = base64.b64encode(plain_str.encode(self.STR_ENCODING))
+
+        # Convert the decoded bytes back to a string
+        encoded_string = encoded_bytes.decode(self.STR_ENCODING)
+        return encoded_string
 
     def decrypt(self, combined_encrypted_str, password):
         salt, iv, ciphertext = self.destructure_salt_iv_encrypted(combined_encrypted_str)
