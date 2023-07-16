@@ -14,6 +14,21 @@
             ],
             "django": true,
             "justMyCode": true
+        },
+        {
+            "name": "Python: Test Django",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/messenger_project/manage.py",
+                "console": "integratedTerminal",
+                "args": [
+                  "test",
+                  "--pattern='*_test.py'"
+                ]
+                ,
+            "django": true,
+            "justMyCode": true
         }
+        
     ]
 }
