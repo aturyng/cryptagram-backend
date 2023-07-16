@@ -47,4 +47,4 @@ dist/**
 package.nls.*.json
 l10n/
 env
-messenger_project/db.sqlite3
+db.sqlite3
