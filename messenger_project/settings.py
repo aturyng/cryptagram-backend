@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
+
+import core_app.tasks
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -41,11 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'corsheaders',
+    'django_injector',
     'core_app',
     'api',
-    "corsheaders",
-    'django_injector',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -150,5 +155,21 @@ if DEBUG:
         "http://localhost:5173",
         "http://127.0.0.1:9000",
     ]
-else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+
+STATIC_ROOT =  os.path.join(BASE_DIR, 'staticfiles')
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
+CELERY_BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 3600}
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379")
+
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+#CELERY_BEAT_SCHEDULE = {
+#    "sample_task": {
+#        "task": "core_app.tasks.remove_expired_messages_task",
+#        "schedule": crontab(minute="*/1"),
+#    },
+#}

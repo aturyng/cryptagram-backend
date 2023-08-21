@@ -48,3 +48,6 @@ package.nls.*.json
 l10n/
 env/
 db.sqlite3
+lib64
+lib
+pyvenv.cfg
