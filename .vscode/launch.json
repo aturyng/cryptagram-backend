@@ -8,7 +8,7 @@
             "name": "Python: Django",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/messenger_project/manage.py",
+            "program": "${workspaceFolder}/manage.py",
             "args": [
                 "runserver"
             ],
@@ -19,16 +19,14 @@
             "name": "Python: Test Django",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/messenger_project/manage.py",
-                "console": "integratedTerminal",
-                "args": [
-                  "test",
-                  "--pattern='*_test.py'"
-                ]
-                ,
+            "program": "${workspaceFolder}/manage.py",
+            "console": "integratedTerminal",
+            "args": [
+                "test",
+                "--pattern='*_test.py'"
+            ],
             "django": true,
             "justMyCode": true
         }
-        
     ]
 }
