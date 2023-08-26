@@ -156,28 +156,3 @@ DATABASES = {
 
 
 STATIC_ROOT =  os.path.join(BASE_DIR, 'staticfiles')
-
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "./logs/django.log",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["file"],   
-            "level": "INFO",    
-            "propagate": True,
-        },
-        "logging_app": {
-            "handlers": ["file"],
-            "level": "INFO",
-            "propagate": True,
-        },
-    },
-}
