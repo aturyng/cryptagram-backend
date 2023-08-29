@@ -16,7 +16,17 @@
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// This can be used to network with other containers or the host.
-	"forwardPorts": [8000],
+	"forwardPorts": [
+		8000
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"donjayamanne.python-extension-pack",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 //	"postCreateCommand": "pip3 install -r requirements.txt",
